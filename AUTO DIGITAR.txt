@@ -1,0 +1,351 @@
+-- AutoType Aimbot - Sistema de Monitoramento com Injeção de Sufixo Direto
+local Players = game:GetService("Players")
+local VirtualInputManager = game:GetService("VirtualInputManager")
+local RunService = game:GetService("RunService")
+
+local Player = Players.LocalPlayer
+local Palavras = {
+   -- === 1. PALAVRAS POR LETRA INDIVIDUAL
+    -- A
+    "ABISSAL", "ACOLITO", "ADAGA", "ADENDO", "AEROLITO", "AFAGO", "AGAPE", "ALCOVA",
+    "ALENTO", "ALFORJE", "ALQUIMIA", "ALTIVEZ", "ALVEDRIO", "AMALGAMA", "AMBAR", "AMNESIA",
+    "ANELO", "ANTIFONA", "APATIA", "APOGEU", "ARCADIA", "ARDIL", "ARESTAS", "ARQUETIPO",
+    "ARRABALDE", "ASCETA", "ASTROLABIO", "ATAVIO", "AURORA", "AUSPICIO",
+    -- B
+    "BOLA", "BONECA", "BANANA", "BALAO", "BOLO", "BARCO", "BELO", "BRISA",
+    -- C
+    "CABALA", "CACOFONIA", "CADENCIA", "CALIGRAFIA", "CALIPSO", "CAMAFEU", "CANONE", "CAPCIOSO",
+    "CAPITULAR", "CARAVELA", "CARMIN", "CATARSE", "CAUSTICO", "CELERIDADE", "CENACULO", "CERNE",
+    "CHANCELA", "CIMERIO", "CIRCUNLOQUIO", "CLAUDICAR", "COADJUVANTE", "COESO", "COLIGACAO", "COMPLACENCIA",
+    "CONCLAVE", "CONTUMAZ", "COROLARIO", "COSMOGONIA", "CRISALIDA", "CUNEIFORME",
+    -- D
+    "DACTILO", "DAIMON", "DALIA", "DEBACLE", "DECORO", "DEFERENCIA", "DELIRIO", "DEMIURGO",
+    "DENODO", "DEPRECAR", "DERIVA", "DESIDERATO", "DESPOTA", "DETRATOR", "DIAFANO", "DICOTOMIA",
+    "DILIGENCIA", "DISRUPCAO", "DISSIDIO", "DIVAGAR", "DOGMA", "DONAIRE", "DORSAL", "DRUIDA",
+    "DUCAL", "DULCIFLUO", "DUNA", "DUPLICIDADE", "DURADOURO", "DISTOPIA",
+    -- E
+    "ESCOLA", "ELEFANTE", "ESTRELA", "ESPELHO", "ESCOVA", "EMA", "ENERGIA", "ENCONTRO",
+    -- F
+    "FOGO", "FACA", "FESTA", "FLOR", "FOCO", "FELIZ", "FONTE", "FUTURO",
+    -- G
+    "GATO", "GELADEIRA", "GELO", "GIRAFA", "GOMA", "GARFO", "GARRAFA", "GUARDA",
+    -- H
+    "HOJE", "HARPA", "HEROI", "HIENA", "HOTEL", "HUMANO", "HASTE", "HUNTER", "HORIZONTE",
+    -- I
+    "IGREJA", "ILHA", "IOGURTE", "IRMAO", "IDADE", "IGUANA", "IMA", "INVERNO",
+    -- J
+    "JANELA", "JACARE", "JARDIM", "JARRO", "JOGO", "JOIA", "JUSTO", "JORNADA",
+    -- K
+    "KART", "KILO", "KIWI", "KOMBI", "KUNG", "KAPPA", "KETCHUP", "KARATE",
+    -- L
+    "LIVRO", "LUA", "LEAO", "LAPIS", "LIMAO", "LARANJA", "LUZ", "LENDA",
+    -- M
+    "MACA", "MESA", "MACACO", "MAO", "MAR", "MEIA", "MUNDO", "MONTANHA",
+    -- N
+    "NAVIO", "NUVEM", "NINHO", "NOITE", "NOTA", "NOME", "NOVO", "NATUREZA",
+    -- O
+    "OBELISCO", "OBSEQUIO", "OBTUSO", "OCASO", "OCRA", "ODALISCA", "ODISSEIA",
+    "OFICIO", "OLIGARQUIA", "ONIRICO", "OPALA", "OPROBRIO", "ORACULO", "ORBE", "ORDALIA",
+    "OREADE", "ORNAMENTO", "ORTODOXO", "OSCULO", "OSTRACISMO", "OTARIO", "OUVIDORIA", "OVACAO",
+    "OVIPARO", "OXIDACAO", "OXIMORO", "OXITONO", "OBNUBILAR", "OBLACAO",
+    -- P
+    "PATO", "PORTA", "PEIXE", "PAPEL", "PEDRA", "PIANO", "PUDIM", "PLANAR", "PONTE",
+    -- Q
+    "QUEIJO", "QUENTE", "QUADRO", "QUINTAL", "QUERIDO", "QUEDA", "QUERUBIM", "QUIMERA",
+    -- R
+    "RATO", "REI", "ROSA", "RUA", "RIO", "ROUPA", "RELOGIO", "RAIZ",
+    -- S
+    "SAPATO", "SOL", "SAPO", "SOPA", "SUCO", "SABAO", "SEGREDO", "SOMBRA",
+    -- T
+    "TETO", "TIJOLO", "TERRA", "TREM", "TESOURA", "TOMATE", "TOALHA", "TEMPO",
+    -- U
+    "UVA", "URSO", "UNHA", "URUBU", "UNIAO", "UNIVERSO", "UTIL", "UMIDADE",
+    -- V
+    "VASO", "VELA", "VENTO", "VIDRO", "VERDE", "VIDA", "VOVO", "VIAGEM",
+    -- W
+    "WAFFLE", "WHEEL", "WEB", "WINDOW", "WHISKY", "WOLF", "WATT", "WEEK",
+    -- X
+    "XICARA", "XALE", "XERIFE", "XINGAR", "XENONIO", "XEROX", "XILOFONE", "XADREZ",
+    -- Y
+    "YOGA", "YOUTUBE", "YAKISOBA", "YOUR", "YORKSHIRE", "YPSILON", "YAM", "YETI",
+    -- Z
+    "ZEBRA", "ZERO", "ZOO", "ZANGADO", "ZINCO", "ZUMBIDO", "ZIGZAG", "ZAFIRA",
+
+    -- === 2. CONJUNTOS DE 2 LETRAS INICIAIS
+    -- BR
+    "BRASIL", "BRAÇO", "BRANCO", "BRANCA", "BRUXA",
+    -- CH
+    "CHAVE", "CHUVA", "CHAPEU", "CHOCOLATE", "CHORO",
+    -- FL
+    "FLORESTA", "FLUTUAR", "FLUXO", "FLANELA", "FLAUTA",
+    -- GR
+    "GRANDE", "GRILO", "GRAVATA", "GRUTA", "GRITO",
+    -- PL
+    "PLACA", "PLANETA", "PLANTA", "PLUMA", "PLASTICO",
+    -- TR
+    "TRATOR", "TRIGO", "TRONCO", "TROVAO", "TRILHA",
+    -- CL
+    "CLIMA", "CLUBE", "CLASSE", "CLARO", "CLIPE",
+    -- CR
+    "CRIANÇA", "CRISTAL", "CRIME", "CRAVO", "CRUZ",
+    -- FR
+    "FRUTA", "FRENTE", "FRANGO", "FRIO", "FRASE",
+    -- GL
+    "GLOBO", "GLÓRIA", "GLACIAL", "GLICOSE", "GLADIADOR",
+    -- PR
+    "PRAIA", "PREÇO", "PRATO", "PRÉDIO", "PRIMO",
+	-- CO
+    "COISA", "COMIDA", "CORPO", "COPO", "CORRIDA",
+	-- CA
+    "CAFE", "CAMISA", "CADERNO", "CAMPO", "CANETA",
+
+    -- === 3. CONJUNTOS DE 3 LETRAS INICIAIS
+    -- BRA
+    "BRADO", "BRANHO", "BRASAO", "BRANDE",
+    -- CHI
+    "CHILE", "CHIFRE", "CHICOTE", "CHINELO",
+    -- PRO
+    "PROVA", "PRONTO", "PRATA", "PROMESSA",
+    -- TRA
+    "TRAÇO", "TRALHA", "TRAVESSA", "TRABALHO",
+    -- CLA
+    "CLAMOR", "CLAREAR", "CLARIDADE", "CLARINETE",
+    -- CRI
+    "CRISE", "CRIAÇÃO", "CRITERIO", "CRITICO",
+    -- FRA
+    "FRACA", "FRACASSO", "FRAGIL", "FRAGMENTO",
+    -- GLO
+    "GLUTEN", "GLOBAL", "GLOSSARIO", "GLORIOSO",
+    -- PRI
+    "PRIMA", "PRISMA", "PRIVADO", "PRIMEIRO"
+}
+
+local Usadas = {}
+local PalavraAtual = nil
+local LetrasDaMesa = ""
+local MesaDetectada = nil
+local CadeiraDona = nil
+local ConexaoLoop = nil
+
+--  Em segundos
+local TempoDigitacao = 0.02  -- padrão: 20ms por tecla
+local TempoMin = 0.01
+local TempoMax = 0.10
+local TempoStep = 0.01
+
+local Gui = Instance.new("ScreenGui")
+Gui.Name = "SugestorAutoType"
+Gui.ResetOnSpawn = false
+Gui.Parent = Player:WaitForChild("PlayerGui")
+
+local Frame = Instance.new("Frame")
+Frame.Size = UDim2.new(0, 200, 0, 160)
+Frame.Position = UDim2.new(0, 10, 0, 10)
+Frame.BackgroundTransparency = 0.3
+Frame.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+Frame.BorderSizePixel = 2
+Frame.BorderColor3 = Color3.fromRGB(0, 170, 255)
+Frame.Parent = Gui
+
+local Texto = Instance.new("TextLabel")
+Texto.Size = UDim2.new(1, 0, 0.22, 0)
+Texto.Text = "Toque em uma cadeira"
+Texto.TextColor3 = Color3.fromRGB(255, 255, 255)
+Texto.BackgroundTransparency = 1
+Texto.TextScaled = true
+Texto.Parent = Frame
+
+local Botao = Instance.new("TextButton")
+Botao.Size = UDim2.new(1, 0, 0.22, 0)
+Botao.Position = UDim2.new(0, 0, 0.22, 0)
+Botao.Text = "ESCREVER"
+Botao.TextColor3 = Color3.fromRGB(255, 255, 255)
+Botao.BackgroundColor3 = Color3.fromRGB(20, 120, 200)
+Botao.TextScaled = true
+Botao.Parent = Frame
+
+local TextoCadeira = Instance.new("TextLabel")
+TextoCadeira.Size = UDim2.new(1, 0, 0.2, 0)
+TextoCadeira.Position = UDim2.new(0, 0, 0.44, 0)
+TextoCadeira.Text = "Status: Aguardando..."
+TextoCadeira.TextColor3 = Color3.fromRGB(0, 255, 120)
+TextoCadeira.BackgroundTransparency = 1
+TextoCadeira.TextScaled = true
+TextoCadeira.Parent = Frame
+
+local LabelTempo = Instance.new("TextLabel")
+LabelTempo.Size = UDim2.new(1, 0, 0.17, 0)
+LabelTempo.Position = UDim2.new(0, 0, 0.64, 0)
+LabelTempo.Text = "Tempo: " .. math.floor(TempoDigitacao * 1000) .. "ms"
+LabelTempo.TextColor3 = Color3.fromRGB(255, 200, 0)
+LabelTempo.BackgroundTransparency = 1
+LabelTempo.TextScaled = true
+LabelTempo.Parent = Frame
+
+local BotaoMenos = Instance.new("TextButton")
+BotaoMenos.Size = UDim2.new(0.3, 0, 0.17, 0)
+BotaoMenos.Position = UDim2.new(0, 0, 0.81, 0)
+BotaoMenos.Text = "- Lento"
+BotaoMenos.TextColor3 = Color3.fromRGB(255, 255, 255)
+BotaoMenos.BackgroundColor3 = Color3.fromRGB(150, 50, 50)
+BotaoMenos.TextScaled = true
+BotaoMenos.Parent = Frame
+
+local BotaoMais = Instance.new("TextButton")
+BotaoMais.Size = UDim2.new(0.3, 0, 0.17, 0)
+BotaoMais.Position = UDim2.new(0.7, 0, 0.81, 0)
+BotaoMais.Text = "+ Rápido"
+BotaoMais.TextColor3 = Color3.fromRGB(255, 255, 255)
+BotaoMais.BackgroundColor3 = Color3.fromRGB(50, 150, 50)
+BotaoMais.TextScaled = true
+BotaoMais.Parent = Frame
+
+local function AtualizarLabelTempo()
+    LabelTempo.Text = "Tempo: " .. math.floor(TempoDigitacao * 1000) .. "ms"
+end
+
+BotaoMenos.Activated:Connect(function()
+    TempoDigitacao = math.min(TempoDigitacao + TempoStep, TempoMax)
+    TempoDigitacao = math.floor(TempoDigitacao * 100 + 0.5) / 100
+    AtualizarLabelTempo()
+end)
+
+BotaoMais.Activated:Connect(function()
+    TempoDigitacao = math.max(TempoDigitacao - TempoStep, TempoMin)
+    TempoDigitacao = math.floor(TempoDigitacao * 100 + 0.5) / 100
+    AtualizarLabelTempo()
+end)
+
+
+local function EncontrarPalavra(prefixo)
+    prefixo = prefixo:upper()
+    for _, palavra in ipairs(Palavras) do
+        if not Usadas[palavra] and palavra:sub(1, #prefixo) == prefixo then
+            return palavra
+        end
+    end
+    return nil
+end
+
+local function SimularTecladoCerto(palavraCompleta, prefixoExistente)
+    local oQueFaltaDigitar = palavraCompleta:sub(#prefixoExistente + 1)
+    print("Injetando apenas:", oQueFaltaDigitar)
+
+    for i = 1, #oQueFaltaDigitar do
+        local char = oQueFaltaDigitar:sub(i, i):upper()
+        local keyCode = Enum.KeyCode[char]
+        if char == " " then keyCode = Enum.KeyCode.Space end
+
+        if keyCode then
+            pcall(function()
+                VirtualInputManager:SendKeyEvent(true, keyCode, false, nil)
+                task.wait(TempoDigitacao * 0.5)  -- 🆕 usa o tempo configurado
+                VirtualInputManager:SendKeyEvent(false, keyCode, false, nil)
+            end)
+        end
+        task.wait(TempoDigitacao)
+    end
+
+    task.wait(TempoDigitacao * 2.5)
+    VirtualInputManager:SendKeyEvent(true, Enum.KeyCode.Return, false, nil)
+    task.wait(0.01)
+    VirtualInputManager:SendKeyEvent(false, Enum.KeyCode.Return, false, nil)
+end
+
+local function DesconectarMesa()
+    if ConexaoLoop then
+        ConexaoLoop:Disconnect()
+        ConexaoLoop = nil
+    end
+    MesaDetectada = nil
+    CadeiraDona = nil
+    PalavraAtual = nil
+    LetrasDaMesa = ""
+    table.clear(Usadas)
+    Texto.Text = "Toque em uma cadeira"
+    TextoCadeira.Text = "Status: Livre / Saiu"
+end
+
+local function IniciarMonitoramento(objetoMesa)
+    if MesaDetectada == objetoMesa then return end
+    MesaDetectada = objetoMesa
+    TextoCadeira.Text = "Mesa: " .. objetoMesa.Name
+
+    local TableObj = objetoMesa:FindFirstChild("Table")
+    if not TableObj then return end
+    local MatchDisplay = TableObj:FindFirstChild("MatchDisplay")
+    if not MatchDisplay then return end
+    local Category = MatchDisplay:FindFirstChild("Category")
+    if not Category or not Category:IsA("TextLabel") then return end
+
+    if ConexaoLoop then ConexaoLoop:Disconnect() end
+
+    ConexaoLoop = RunService.Heartbeat:Connect(function()
+        if not CadeiraDona or not Player.Character or not Player.Character:FindFirstChild("HumanoidRootPart") then
+            DesconectarMesa()
+            return
+        end
+
+        local distancia = (Player.Character.HumanoidRootPart.Position - CadeiraDona.Position).Magnitude
+        if distancia > 8 then
+            DesconectarMesa()
+            return
+        end
+
+        local Letras = Category.Text:upper()
+        if Letras ~= "" and Letras ~= " " then
+            LetrasDaMesa = Letras
+            if not PalavraAtual or PalavraAtual:sub(1, #Letras) ~= Letras then
+                local Palavra = EncontrarPalavra(Letras)
+                if Palavra then
+                    PalavraAtual = Palavra
+                    Texto.Text = Palavra
+                else
+                    Texto.Text = "(" .. Letras .. ") Sem Palavra"
+                    PalavraAtual = nil
+                end
+            end
+        else
+            Texto.Text = "Aguardando Letras..."
+            PalavraAtual = nil
+            LetrasDaMesa = ""
+        end
+    end)
+end
+
+local function MonitorarBancos(objeto)
+    if objeto:IsA("Seat") or objeto:IsA("VehicleSeat") then
+        objeto.Touched:Connect(function(hit)
+            local char = hit.Parent
+            if char == Player.Character then
+                local pai1 = objeto.Parent
+                if pai1 then
+                    local pai2 = pai1.Parent
+                    if pai2 then
+                        CadeiraDona = objeto
+                        IniciarMonitoramento(pai2)
+                    end
+                end
+            end
+        end)
+    end
+end
+
+
+for _, desc in pairs(workspace:GetDescendants()) do
+    MonitorarBancos(desc)
+end
+
+workspace.DescendantAdded:Connect(MonitorarBancos)
+
+Botao.Activated:Connect(function()
+    if PalavraAtual and LetrasDaMesa ~= "" then
+        local palavraEnviada = PalavraAtual
+        Usadas[palavraEnviada] = true
+        SimularTecladoCerto(palavraEnviada, LetrasDaMesa)
+        Texto.Text = "Digitado!"
+        PalavraAtual = nil
+    end
+end)
+
+print("[AutoType V7]")
